@@ -4,7 +4,7 @@ use \Firebase\JWT\JWT;
 // require './clases/paises.php';
 require_once './clases/funciones.php';
 require_once './clases/usuarios.php';
-// require_once './clases/productos.php';
+require_once './clases/pizzas.php';
 require_once './clases/response.php';
 
 //metodo y path al que se accedio
@@ -100,14 +100,97 @@ if($metodo == 'POST')
                         echo json_encode($response);
                     }
                 break;
+                case '/pizzas':
+                    // echo "estoy en pizzas";
+                        $archivo = './files/pizzas.json';
+                        $verifica = true;
+                        //obtengo token
+                        $headers = getallheaders();
+                        //verifico token
+                        $token = $headers['token'];
+                        // echo $token;
+                        if ($token == '') {
+                            $verifica = false;
+                        }
+                        else{
+                            try {
+                                //code...
+                                $decoded = JWT::decode($token, $key, array('HS256'));
+                                if ($decoded->tipo != 'encargado') {
+                                    $verifica = false;
+                                }
+                            } catch (\Throwable $th) {
+                                //throw $th;
+                                $verifica = false;
+                                // $response->data = 'token incorrecto';
+                                // echo json_encode($response);
+                            }
+                        }
+                        if(!empty($_POST) && $verifica == true)
+                        {
+                            // echo "token OK";                   
+                            if(isset($_POST['tipo'])&&isset($_POST['precio'])&&isset($_POST['stock'])&&isset($_POST['sabor'])&&isset($_POST['stock'])&&isset($_FILES['foto'])
+                               && $_POST['tipo'] != '' && $_POST['precio'] != '' && $_POST['stock'] != '' && $_POST['sabor']!= '' && $_POST['stock'] != '')
+                            {
+                                // echo "datos OK <br>";
+                                // var_dump($_FILES);
+                                $tipo = $_POST['tipo'];
+                                $precio = $_POST['precio'];
+                                $stock = $_POST['stock'];
+                                $sabor = $_POST['sabor'];
+                                // $venta = new pizza($idProd, $cantidad, $usuario);
+                                //verifico datos de pizza
+                                if(($tipo != 'molde' && $tipo != 'piedra') || ($sabor != 'jamon' && $sabor =!'napo' && $sabor =! 'muzza') )
+                                {
+                                    $response->data = 'tipo o sabor invalidos';
+                                    $verifica = false;
+                                    echo json_encode($response);
+                                }
+                                else
+                                {
+                                    $verifica = true;
+                                }
+                                if($verifica == true)
+                                {
+                                    $foto = $_FILES['foto'];
+                                    //obtengo path foto y guardo
+                                    //parametros para guardar foto
+                                    $fotoName = $foto['name'];
+                                    $path = $foto['tmp_name'];
+                                    $destino = './imagenes/';
+                                    $destiny = funciones::GuardaTemp($path, $destino, $fotoName, $tipo . $sabor); 
+                                    if($destino != $destiny)
+                                    {
+                                        $pizza = new pizza($tipo, $precio, $stock, $sabor, $destiny);
+                                        $response = $pizza->guardarProducto($archivo);
+                                        echo $response;
+                                    }
+                                    else
+                                    {
+                                        $response->data = 'error al subir imagen de producto';
+                                        echo $response;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                $response->data = 'datos POST con errores';
+                                echo json_encode($response);
+                            }
+                    }
+                    else
+                    {
+                        $response->data = 'datos POST o TOKEN con errores';
+                        echo json_encode($response);
+                    }
+                }
+            }
+            else
+            {
+                $response->data = 'datos POST vacios';
+                        echo json_encode($response);
+            }
         }
-    }
-    else
-    {
-        $response->data = 'datos POST vacíos';
-        echo json_encode($response);
-    }
-}
 else
 {
     if($metodo == 'GET')

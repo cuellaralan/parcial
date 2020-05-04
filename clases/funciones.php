@@ -23,16 +23,17 @@ class Funciones
 
     public static function Leer($archivo)
     {
-        $handle = fopen($archivo,'r');
-        // Leo archivo
-        $size = filesize($archivo);
-        // echo $archivo;
-        // $listaPersonas = array();
-        $listaPersonas = fgets($handle, $size);
-        // print_r($listaPersonas);
-        // Convierto string a array
-        $result = fclose($handle);
-        return json_decode($listaPersonas);
+        
+            $handle = fopen($archivo,'r');
+            $size = filesize($archivo);
+            // echo $archivo;
+            // $listaPersonas = array();
+            $listaPersonas = fgets($handle, $size);
+            // print_r($listaPersonas);
+            // Convierto string a array
+            $result = fclose($handle);
+            return json_decode($listaPersonas);
+        
     }
 
     public static function Guardar($objeto,$archivo,$modo)
