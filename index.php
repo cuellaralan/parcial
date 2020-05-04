@@ -34,9 +34,9 @@ if($metodo == 'POST')
             case '/usuario':
                 // echo "estoy en SIGNIN <br>";
                 $archivo = './files/users.json';
-                    // echo "POST con datos <br>";
-                    if(isset($_POST['email'])&&isset($_POST['clave'])&&isset($_POST['tipo']) &&
-                    $_POST['email'] != '' && $_POST['clave'] != '' && $_POST['tipo'] != '')
+                // echo "POST con datos <br>";
+                if(isset($_POST['email'])&&isset($_POST['clave'])&&isset($_POST['tipo']) &&
+                $_POST['email'] != '' && $_POST['clave'] != '' && $_POST['tipo'] != '')
                     {
                         // echo "datos OK <br>";
                         $email = $_POST['email'];
@@ -61,7 +61,45 @@ if($metodo == 'POST')
                         $response->data = 'falta informar algun parametro en el POST';
                         echo json_encode($response);
                     }
-            break;
+                break;
+                case '/login':
+                    $archivo = './files/users.json';
+                    if(isset($_POST['email'])&&isset($_POST['clave']) &&
+                    $_POST['email'] != '' && $_POST['clave'] != '')
+                    {
+                        // echo "datos OK <br>";
+                        $email = $_POST['email'];
+                        $pass = $_POST['clave'];
+                        // echo "usuario: $nombre apellido: $apellido , email: $email";
+                        $response = usuario::verificarLogin($archivo,$email,$pass);
+                        if($response->status == 'unsucces')
+                        {
+                            $response->data = 'datos erroneos, verifique';
+                            echo json_encode($response);
+                        }
+                        else 
+                        {
+                            // $payload = array(
+                            //     "iss" => "http://example.org",
+                            //     "aud" => "http://example.com",
+                            //     "iat" => 1356999524,
+                            //     "nbf" => 1357000000,
+                            //     "email" => 'mail@mail.com',
+                            //     "tipo" => 'no registrado'
+                            // );
+                            $datos = $response->data;
+                            $payload["email"] = $datos->mail;
+                            $payload["tipo"] = $datos->tipo;
+                            $jwt = JWT::encode($payload, $key);
+                            $response->data = $jwt;
+                            echo json_encode($response);
+                        }
+                    }
+                    else {
+                        $response->data = 'falta informar algun parametro en el POST';
+                        echo json_encode($response);
+                    }
+                break;
         }
     }
     else

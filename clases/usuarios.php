@@ -31,7 +31,7 @@ class usuario
         return json_encode($response);
     }
 
-    public static function verificarLogin($archivo,$name,$pass)
+    public static function verificarLogin($archivo,$email,$pass)
     {
         // echo "estoy en usuario";
         $listaUsuarios = funciones::Leer($archivo);
@@ -40,7 +40,7 @@ class usuario
         $response = new response();
         foreach ($listaUsuarios as $key => $value) {
             // var_dump($value); echo "$key";
-            if($value->nombre == $name && $value->clave== $pass)
+            if($value->mail == $email && $value->clave== $pass)
             {
                 $response->data = $value;
                 $response->status = 'succes';
